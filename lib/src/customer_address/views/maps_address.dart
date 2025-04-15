@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:shipping_address/common/widgets/custom_button.dart';
 import 'package:shipping_address/common/widgets/custom_textfield.dart';
 
 class MapsAddress extends StatefulWidget {
@@ -119,6 +120,16 @@ class _MapsAddressState extends State<MapsAddress> {
         markers: markers,
         myLocationEnabled: true,
         myLocationButtonEnabled: true,
+      ),
+
+      // bottomNavigationBar: ,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: CustomButton.normalCustomButton(
+          text: 'Pilih Lokasi',
+          onTap: () {},
+        ),
       ),
     );
   }

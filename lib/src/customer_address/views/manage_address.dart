@@ -7,7 +7,7 @@ import 'package:shipping_address/common/widgets/custom_textarea.dart';
 import 'package:shipping_address/common/widgets/custom_textfield.dart';
 
 class ManageAddress extends StatefulWidget {
- const ManageAddress({super.key});
+  const ManageAddress({super.key});
 
   @override
   State<ManageAddress> createState() => _ManageAddressState();

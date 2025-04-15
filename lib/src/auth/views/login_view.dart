@@ -142,29 +142,33 @@ class _LoginViewState extends State<LoginView> {
                       CustomButton.normalCustomButton(
                         text: 'Login',
                         onTap: () {
-                          if (_formKey.currentState!.validate()) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Berhasil menambahkan user'),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                            // Provider.of<LoadingProvider>(
-                            //   context,
-                            //   listen: false,
-                            // ).show();
+                          // if (_formKey.currentState!.validate()) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Berhasil menambahkan user'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                          Navigator.pushReplacementNamed(
+                            context,
+                            AppRoute.listAddress,
+                          );
+                          // Provider.of<LoadingProvider>(
+                          //   context,
+                          //   listen: false,
+                          // ).show();
 
-                            // await Future.delayed(Duration(seconds: 3)).then((
-                            //   value,
-                            // ) {
-                            //   // setelah selesai API:
-                            //   Provider.of<LoadingProvider>(
-                            //     context,
-                            //     listen: false,
-                            //   ).hide();
-                            //   Navigator.pushNamed(context, AppRoute.register);
-                            // });
-                          }
+                          // await Future.delayed(Duration(seconds: 3)).then((
+                          //   value,
+                          // ) {
+                          //   // setelah selesai API:
+                          //   Provider.of<LoadingProvider>(
+                          //     context,
+                          //     listen: false,
+                          //   ).hide();
+                          //   Navigator.pushNamed(context, AppRoute.register);
+                          // });
+                          // }
                         },
                       ),
                       SizedBox(height: 35),

@@ -54,8 +54,9 @@ class _ListAddressState extends State<ListAddress> {
         },
         itemCount: _alamatList.length,
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 14),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
         child: CustomButton.normalCustomButton(
           text: 'Jadikan Alamat Utama',
           onTap: () {

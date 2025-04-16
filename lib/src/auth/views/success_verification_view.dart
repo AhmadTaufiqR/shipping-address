@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shipping_address/common/routes/route.dart';
 import 'package:shipping_address/common/widgets/custom_button.dart';
 import 'package:shipping_address/common/widgets/custom_textfield.dart';
 import 'package:shipping_address/generated/assets.dart';
+import 'package:shipping_address/src/auth/providers/auth_provider.dart';
 
 class SuccessVerificationView extends StatefulWidget {
   const SuccessVerificationView({super.key});
@@ -55,65 +57,70 @@ class _SuccessVerificationViewState extends State<SuccessVerificationView> {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 25),
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    CustomTextField.normalTextField(
-                      hintText: 'Password',
-                      obscureText: _obsecure,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      suffixIcon: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _obsecure = !_obsecure;
-                          });
-                        },
-                        child: Icon(
-                          _obsecure
-                              ? Icons.visibility_off_rounded
-                              : Icons.visibility_rounded,
-                          size: 20,
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Password wajib diisi';
-                        }
-                        if (value.length < 8) {
-                          return 'Password minimal 8 karakter';
-                        }
-                        final passwordRegex = RegExp(
-                          r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$&*~]).{8,}$',
-                        );
-                        if (!passwordRegex.hasMatch(value)) {
-                          return 'Password harus '
-                              'mengandung huruf besar, \nangka, dan simbol';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    SizedBox(height: 35),
-                    CustomButton.normalCustomButton(
-                      text: 'Selanjutnya',
-                      onTap: () {
-                        if (_formKey.currentState!.validate()) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Berhasil menambahkan user'),
-                              backgroundColor: Colors.green,
+              Consumer<AuthProvider>(
+                builder: (context, authP, _) {
+                  return Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        CustomTextField.normalTextField(
+                          hintText: 'Password',
+                          obscureText: _obsecure,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          controller: authP.passwordC,
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _obsecure = !_obsecure;
+                              });
+                            },
+                            child: Icon(
+                              _obsecure
+                                  ? Icons.visibility_off_rounded
+                                  : Icons.visibility_rounded,
+                              size: 20,
                             ),
-                          );
-                          Navigator.pushNamed(
-                            context,
-                            AppRoute.informationContact,
-                          );
-                        }
-                      },
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Password wajib diisi';
+                            }
+                            if (value.length < 8) {
+                              return 'Password minimal 8 karakter';
+                            }
+                            final passwordRegex = RegExp(
+                              r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$&*~]).{8,}$',
+                            );
+                            if (!passwordRegex.hasMatch(value)) {
+                              return 'Password harus '
+                                  'mengandung huruf besar, \nangka, dan simbol';
+                            }
+                            return null;
+                          },
+                        ),
+
+                        SizedBox(height: 35),
+                        CustomButton.normalCustomButton(
+                          text: 'Selanjutnya',
+                          onTap: () {
+                            if (_formKey.currentState!.validate()) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Berhasil Mengatur Password'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                              Navigator.pushReplacementNamed(
+                                context,
+                                AppRoute.informationContact,
+                              );
+                            }
+                          },
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
             ],
           ),

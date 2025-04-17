@@ -103,10 +103,13 @@ class _ManageAddressState extends State<ManageAddress> {
                         controller: customerP.emailC,
                         hintText: 'Email',
                         validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return null; // Tidak menampilkan error jika kosong
+                          }
                           final emailRegex = RegExp(
                             r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                           );
-                          if (!emailRegex.hasMatch(value!)) {
+                          if (!emailRegex.hasMatch(value)) {
                             return 'Format email tidak valid';
                           }
                           return null;
@@ -555,6 +558,7 @@ class _ManageAddressState extends State<ManageAddress> {
                       CustomTextField.normalTextField(
                         labelText: 'NPWP',
                         controller: customerP.npwpC,
+                        keyboardType: TextInputType.numberWithOptions(),
                         icRequired: Padding(
                           padding: const EdgeInsets.only(left: 5),
                           child: GestureDetector(

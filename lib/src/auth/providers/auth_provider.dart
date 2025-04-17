@@ -11,6 +11,7 @@ import 'package:shipping_address/common/routes/route.dart';
 import 'package:shipping_address/src/auth/models/contact_model.dart';
 import 'package:shipping_address/src/auth/models/login_model.dart';
 import 'package:shipping_address/src/auth/models/register_model.dart';
+import 'package:shipping_address/src/auth/models/resend_code_model.dart';
 import 'package:shipping_address/src/auth/models/verification_model.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -176,6 +177,51 @@ class AuthProvider extends ChangeNotifier {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(_verificationModel.message!),
+            backgroundColor: Colors.red,
+          ),
+        );
+        notifyListeners();
+      }
+    } on Exception catch (e) {
+      log(e.toString());
+      notifyListeners();
+    }
+  }
+
+  /* this line of the end verification view */
+  /* this line of beginning verification view */
+  ResendCodeModel _resendCodeModel = ResendCodeModel();
+
+  Future<void> fetchResendCode(BuildContext context) async {
+    try {
+      String token = Constant.ACCESS_TOKEN;
+      Uri url = Uri.parse(Constant.BASE_URL + '/customer/register/resend-code');
+      var response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'AccessToken': token,
+        },
+        body: jsonEncode({"user_id": userC.text}),
+      );
+      log('Response Body ${response.body}');
+      var responseBody = jsonDecode(response.body);
+      if ((response.statusCode == 201 || response.statusCode == 200) &&
+          responseBody['action'] == true) {
+        _resendCodeModel = ResendCodeModel.fromJson(jsonDecode(response.body));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_resendCodeModel.message!),
+            backgroundColor: Colors.green,
+          ),
+        );
+        notifyListeners();
+      } else {
+        _resendCodeModel = ResendCodeModel.fromJson(jsonDecode(response.body));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_resendCodeModel.message!),
             backgroundColor: Colors.red,
           ),
         );

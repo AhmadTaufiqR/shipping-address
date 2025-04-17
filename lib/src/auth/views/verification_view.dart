@@ -99,8 +99,19 @@ class VerificationView extends StatelessWidget {
                             SizedBox(height: 5),
                             CustomTextButton.normalCustomTextButton(
                               text: 'Kirim Ulang',
-                              onTap: () {
-                                // Navigator.pushNamed(context, AppRoute.register);
+                              onTap: () async {
+                                Provider.of<LoadingProvider>(
+                                  context,
+                                  listen: false,
+                                ).show();
+                                await authP.fetchResendCode(context).then((
+                                  value,
+                                ) {
+                                  Provider.of<LoadingProvider>(
+                                    context,
+                                    listen: false,
+                                  ).hide();
+                                });
                               },
                             ),
                             SizedBox(height: 15),

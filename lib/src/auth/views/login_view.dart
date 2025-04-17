@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:shipping_address/common/routes/route.dart';
@@ -58,6 +59,7 @@ class _LoginViewState extends State<LoginView> {
                           CustomTextField.normalTextField(
                             hintText: 'Email atau nomor telpon',
                             autovalidateMode: AutovalidateMode.onUnfocus,
+                            keyboardType: TextInputType.emailAddress,
                             controller: authP.userC,
                             validator: (value) {
                               if (value == null || value.isEmpty) {

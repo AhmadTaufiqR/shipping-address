@@ -536,14 +536,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.4"
-  ripple_backdrop_animate_route:
-    dependency: "direct main"
-    description:
-      name: ripple_backdrop_animate_route
-      sha256: dd977d331841e7f85a652a9abf100e4c05a8d330bbc57c5b0e28314f8007d4a2
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.0"
   sanitize_html:
     dependency: transitive
     description:

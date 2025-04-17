@@ -94,22 +94,22 @@ class _LoginViewState extends State<LoginView> {
                                 size: 20,
                               ),
                             ),
-                            // validator: (value) {
-                            //   if (value == null || value.isEmpty) {
-                            //     return 'Password wajib diisi';
-                            //   }
-                            //   if (value.length < 8) {
-                            //     return 'Password minimal 8 karakter';
-                            //   }
-                            //   final passwordRegex = RegExp(
-                            //     r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$&*~]).{8,}$',
-                            //   );
-                            //   if (!passwordRegex.hasMatch(value)) {
-                            //     return 'Password harus '
-                            //         'mengandung huruf besar, \nangka, dan simbol';
-                            //   }
-                            //   return null;
-                            // },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Password wajib diisi';
+                              }
+                              if (value.length < 8) {
+                                return 'Password minimal 8 karakter';
+                              }
+                              final passwordRegex = RegExp(
+                                r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$&*~]).{8,}$',
+                              );
+                              if (!passwordRegex.hasMatch(value)) {
+                                return 'Password harus '
+                                    'mengandung huruf besar, \nangka, dan simbol';
+                              }
+                              return null;
+                            },
                           ),
                           SizedBox(height: 20),
                           Row(

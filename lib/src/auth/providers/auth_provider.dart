@@ -61,7 +61,11 @@ class AuthProvider extends ChangeNotifier {
         await prefs.setString(Constant.kPrefToken, _loginModel.token!);
         log(_loginModel.token!);
         notifyListeners();
-        Navigator.pushReplacementNamed(context, AppRoute.listAddress);
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoute.listAddress,
+          (route) => false,
+        );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(

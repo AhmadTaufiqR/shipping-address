@@ -1,9 +1,16 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shipping_address/common/routes/route.dart';
 import 'package:shipping_address/common/widgets/custom_button.dart';
+import 'package:shipping_address/main.dart';
+import 'package:shipping_address/src/customer_address/models/list_address_model.dart';
+import 'package:shipping_address/src/customer_address/providers/customer_provider.dart';
+import 'package:shipping_address/src/customer_address/views/manage_address.dart';
 
 class ListAddress extends StatefulWidget {
-  ListAddress({super.key});
+  const ListAddress({super.key});
 
   @override
   State<ListAddress> createState() => _ListAddressState();
@@ -11,7 +18,22 @@ class ListAddress extends StatefulWidget {
 
 class _ListAddressState extends State<ListAddress> {
   int? _selectedIndex;
-  List<int> _alamatList = List.generate(20, (index) => index);
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<LoadingProvider>(context, listen: false).show();
+
+      Provider.of<CustomerProvider>(
+        context,
+        listen: false,
+      ).loadAddressList().then((value) {
+        Provider.of<LoadingProvider>(context, listen: false).hide();
+      });
+
+    });
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +48,7 @@ class _ListAddressState extends State<ListAddress> {
         centerTitle: true,
         surfaceTintColor: Colors.transparent,
         backgroundColor: Colors.white,
-        actionsPadding: EdgeInsets.symmetric(horizontal: 5),
+        actionsPadding: EdgeInsets.only(right: 3),
         actions: [
           IconButton(
             onPressed: () {
@@ -34,53 +56,136 @@ class _ListAddressState extends State<ListAddress> {
             },
             icon: Icon(Icons.add),
           ),
+
+          Consumer<CustomerProvider>(
+            builder: (context, customerP, _) {
+              return IconButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text('Konfirmasi'),
+                        content: Text('Apakah Anda yakin ingin keluar?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(false);
+                            },
+                            child: Text('Tidak'),
+                          ),
+
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(true);
+                            },
+                            child: Text('Ya'),
+                          ),
+                        ],
+                      );
+                    },
+                  ).then((value) async {
+                    if (value == true) {
+                      Provider.of<LoadingProvider>(
+                        context,
+                        listen: false,
+                      ).show();
+                      await customerP.fetchLogout(context).then((value) {
+                        Provider.of<LoadingProvider>(
+                          context,
+                          listen: false,
+                        ).hide();
+                      });
+                    } else {
+                      return;
+                    }
+                  });
+                },
+                icon: Icon(Icons.logout_outlined),
+              );
+            },
+          ),
         ],
       ),
-      body: ListView.separated(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        itemBuilder: (context, index) {
-          int currentIndex = _alamatList[index];
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedIndex = currentIndex;
-              });
+      body: Consumer<CustomerProvider>(
+        builder: (context, customerP, _) {
+          return ListView.separated(
+            // controller: _scrollController,
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            itemBuilder: (context, index) {
+              var currentIndex = customerP.listAddressModel[index];
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                },
+                child: _cardList(
+                  currentIndex,
+                  isSelected: _selectedIndex == index,
+                  isPrimary:
+                      currentIndex.addressId == customerP.primaryAddressId,
+                ),
+              );
             },
-            child: _cardList(currentIndex),
+            separatorBuilder: (context, index) {
+              return SizedBox(height: 8);
+            },
+            itemCount: customerP.listAddressModel.length,
           );
         },
-        separatorBuilder: (context, index) {
-          return SizedBox(height: 12);
-        },
-        itemCount: _alamatList.length,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Padding(
         padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-        child: CustomButton.normalCustomButton(
-          text: 'Jadikan Alamat Utama',
-          onTap: () {
-            if (_selectedIndex != null) {
-              setState(() {
-                _alamatList.remove(_selectedIndex);
-                _alamatList.insert(0, _selectedIndex!);
-                _selectedIndex = _alamatList.first;
-              });
-            }
+        child: Consumer<CustomerProvider>(
+          builder: (context, customerP, _) {
+            return CustomButton.normalCustomButton(
+              text: 'Jadikan Alamat Utama',
+              onTap: () {
+                if (_selectedIndex != null && _selectedIndex! >= 0) {
+                  customerP.makeAddressPrimary(_selectedIndex!);
+                  setState(() {
+                    _selectedIndex = null;
+                  });
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Alamat berhasil dijadikan utama'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Pilih alamat terlebih dahulu')),
+                  );
+                }
+              },
+            );
           },
         ),
       ),
     );
   }
 
-  Widget _cardList(int index) {
-    final isSelected = index == _selectedIndex;
+  Widget _cardList(
+    ListAddressModel address, {
+    required bool isSelected,
+    required bool isPrimary,
+  }) {
     return Card(
-      color: isSelected ? Colors.blue.shade50 : Colors.grey.shade100,
+      color:
+          isSelected
+              ? Colors.blue.shade50
+              : isPrimary
+              ? Colors.green.shade50
+              : Colors.grey.shade100,
       shape: RoundedRectangleBorder(
         side:
             isSelected
                 ? BorderSide(color: Colors.blue, width: 1.5)
+                : isPrimary
+                ? BorderSide(color: Colors.green.shade50, width: 1.5)
                 : BorderSide(color: Colors.grey.shade100, width: 1),
         borderRadius: BorderRadius.circular(8),
       ),
@@ -92,15 +197,83 @@ class _ListAddressState extends State<ListAddress> {
               contentPadding: EdgeInsets.zero,
               leading: Icon(Icons.home),
               title: Text(
-                'Rumah Siapa',
+                address.addressLabel ?? '-',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  GestureDetector(onTap: () {}, child: Icon(Icons.edit)),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => ManageAddress(
+                                isEdit: true,
+                                index: address.addressId,
+                              ),
+                        ),
+                      );
+                    },
+                    child: Icon(Icons.edit_outlined),
+                  ),
                   SizedBox(width: 12),
-                  GestureDetector(onTap: () {}, child: Icon(Icons.delete)),
+                  Consumer<CustomerProvider>(
+                    builder: (context, customerP, _) {
+                      return GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text('Konfirmasi'),
+                                content: Text(
+                                  'Apakah Anda yakin ingin menghapus alamat ini?',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(false);
+                                    },
+                                    child: Text('Tidak'),
+                                  ),
+
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(true);
+                                    },
+                                    child: Text('Ya'),
+                                  ),
+                                ],
+                              );
+                            },
+                          ).then((value) async {
+                            if (value == true) {
+                              Provider.of<LoadingProvider>(
+                                context,
+                                listen: false,
+                              ).show();
+                              await customerP
+                                  .fetchDeleteAddress(
+                                    context,
+                                    address.addressId!,
+                                  )
+                                  .then((value) {
+                                    Provider.of<LoadingProvider>(
+                                      context,
+                                      listen: false,
+                                    ).hide();
+                                  });
+                            } else {
+                              return;
+                            }
+                          });
+                        },
+                        child: Icon(Icons.delete_outline_outlined),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -109,7 +282,7 @@ class _ListAddressState extends State<ListAddress> {
               contentPadding: EdgeInsets.zero,
               leading: Icon(Icons.person),
               title: Text(
-                'Steven',
+                address.name ?? '-',
                 style: TextStyle(fontWeight: FontWeight.normal),
               ),
             ),
@@ -118,7 +291,7 @@ class _ListAddressState extends State<ListAddress> {
               contentPadding: EdgeInsets.zero,
               leading: Icon(Icons.phone),
               title: Text(
-                '1234567890',
+                address.phoneNumber ?? '-',
                 style: TextStyle(fontWeight: FontWeight.normal),
               ),
             ),
@@ -127,7 +300,7 @@ class _ListAddressState extends State<ListAddress> {
               contentPadding: EdgeInsets.zero,
               leading: Icon(Icons.location_on),
               title: Text(
-                'Jl. Jogja',
+                address.addressMap ?? '-',
                 style: TextStyle(fontWeight: FontWeight.normal),
               ),
             ),

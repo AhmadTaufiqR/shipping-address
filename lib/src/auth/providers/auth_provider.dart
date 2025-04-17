@@ -58,6 +58,7 @@ class AuthProvider extends ChangeNotifier {
           responseBody['login'] == true) {
         _loginModel = LoginModel.fromJson(jsonDecode(response.body));
         await prefs.setString(Constant.kPrefToken, _loginModel.token!);
+        log(_loginModel.token!);
         notifyListeners();
         Navigator.pushReplacementNamed(context, AppRoute.listAddress);
         ScaffoldMessenger.of(context).showSnackBar(

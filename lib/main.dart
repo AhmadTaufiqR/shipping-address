@@ -3,10 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:shipping_address/common/routes/route.dart';
 import 'package:shipping_address/common/widgets/custom_loading.dart';
 import 'package:shipping_address/src/auth/providers/auth_provider.dart';
+import 'package:shipping_address/src/customer_address/providers/customer_provider.dart';
 part './common/helper/base_controller.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -21,6 +22,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<LoadingProvider>(
           create: (context) => LoadingProvider(),
+        ),
+        ChangeNotifierProvider<CustomerProvider>(
+          create: (context) => CustomerProvider(),
         ),
       ],
       child: MaterialApp(

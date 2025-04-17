@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:provider/provider.dart';
 import 'package:shipping_address/common/widgets/custom_button.dart';
 import 'package:shipping_address/common/widgets/custom_textfield.dart';
+import 'package:shipping_address/src/customer_address/providers/customer_provider.dart';
 
 class MapsAddress extends StatefulWidget {
   const MapsAddress({super.key});
@@ -20,7 +22,7 @@ class _MapsAddressState extends State<MapsAddress> {
     zoom: 15,
   );
 
-  final TextEditingController _addressController = TextEditingController();
+  TextEditingController _addressController = TextEditingController();
 
   @override
   void initState() {
@@ -54,6 +56,10 @@ class _MapsAddressState extends State<MapsAddress> {
       desiredAccuracy: LocationAccuracy.high,
     );
 
+    var customerP = Provider.of<CustomerProvider>(context, listen: false);
+    customerP.lat = position.latitude;
+    customerP.long = position.longitude;
+
     // Mengonversi koordinat ke alamat
     String address = await _getAddressFromLatLng(
       position.latitude,
@@ -74,6 +80,11 @@ class _MapsAddressState extends State<MapsAddress> {
           markerId: MarkerId('current_location'),
           position: LatLng(position.latitude, position.longitude),
           infoWindow: InfoWindow(title: 'Lokasi Anda'),
+          draggable: true, // Izinkan marker untuk dipindah-pindah
+          onDragEnd: (newPosition) {
+            // Ketika marker dipindahkan
+            _updateMarkerAndAddress(newPosition);
+          },
         ),
       );
 
@@ -102,6 +113,34 @@ class _MapsAddressState extends State<MapsAddress> {
     }
   }
 
+  // Memperbarui marker dan alamat saat dipindahkan
+  Future<void> _updateMarkerAndAddress(LatLng newPosition) async {
+    String address = await _getAddressFromLatLng(
+      newPosition.latitude,
+      newPosition.longitude,
+    );
+
+    setState(() {
+      markers.clear();
+      markers.add(
+        Marker(
+          markerId: MarkerId('current_location'),
+          position: newPosition,
+          infoWindow: InfoWindow(title: 'Lokasi Baru'),
+          draggable: true,
+          onDragEnd: (newPosition) {
+            _updateMarkerAndAddress(newPosition);
+          },
+        ),
+      );
+
+      _addressController.text = address; // Perbarui alamat di TextField
+      mapController.animateCamera(
+        CameraUpdate.newLatLng(newPosition),
+      ); // Animasikan kamera
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -116,19 +155,34 @@ class _MapsAddressState extends State<MapsAddress> {
         onMapCreated: (controller) {
           mapController = controller;
         },
+        onTap: (LatLng tappedPosition) {
+          // Ketika pengguna mengetuk peta
+          _updateMarkerAndAddress(tappedPosition);
+        },
         initialCameraPosition: initialCameraPosition,
         markers: markers,
         myLocationEnabled: true,
         myLocationButtonEnabled: true,
       ),
-
-      // bottomNavigationBar: ,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: CustomButton.normalCustomButton(
-          text: 'Pilih Lokasi',
-          onTap: () {},
+        child: Consumer<CustomerProvider>(
+          builder: (context, customerP, _) {
+            return CustomButton.normalCustomButton(
+              text: 'Pilih Lokasi',
+              onTap: () {
+                customerP.setSelectedLocation(_addressController.text);
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Berhasil Menetapkan Alamat'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              },
+            );
+          },
         ),
       ),
     );

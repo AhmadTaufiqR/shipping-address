@@ -131,7 +131,9 @@ class CustomTextField {
                     color: Colors.red,
                   ),
                 ),
+                counterText: '',
               ),
+
               inputFormatters: inputFormatters,
               validator: validator,
             ),

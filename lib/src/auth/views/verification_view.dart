@@ -36,7 +36,6 @@ class VerificationView extends StatelessWidget {
                   Consumer<AuthProvider>(
                     builder: (context, authP, _) {
                       return Text(
-                        // TODO: ini kirim ke diambil dari controller yang ada di dalam provider.
                         'Masukkan kode verifikasi yang telah kami kirim ke ${authP.userC.text}',
                         style: TextStyle(
                           fontWeight: FontWeight.normal,

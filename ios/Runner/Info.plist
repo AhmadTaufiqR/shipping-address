@@ -27,11 +27,10 @@
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
-	    <!-- Location Always Permission -->
-    <!-- Description: We need access to your location to provide location-based services at all times -->
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>We need access to your location to provide location-based services at all times</string>
 	<string>Main</string>
+		<!-- Location Always Permission -->
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need access to your location to provide location-based services at all times</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
